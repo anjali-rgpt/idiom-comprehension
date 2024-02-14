@@ -1,0 +1,1 @@
+This folder contains the stimuli for the respective trials. In the case of this experiment, we have 80 idioms from 4 different languages and each idiom has 4 associated plausible responses that participants will need to choose from. 
