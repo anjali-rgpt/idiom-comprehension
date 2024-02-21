@@ -1,2 +1,3 @@
-# my-project
-Template repository for web-based experiment projects.
+# Welcome to the Idiom Comprehension Trials for Human Subjects
+
+In this experiment, we investigate if bilingual subjects find it easier to use conceptual metaphor to make inferences about the meanings of unfamiliar idioms compared to those that only know one language - like English. We study this by creating two groups of users and administering a series of idioms to them one by one; each idiom is a literal translation from one of four languages - Mandarin Chinese, Spanish, Russian, or Hindi. Participants in either group should not be fluent in any of these languages. Each idiom will be presented with four options, and these options are plausible figurative interpretations of the idiom. One of the four is the actual figurative meaning. 
