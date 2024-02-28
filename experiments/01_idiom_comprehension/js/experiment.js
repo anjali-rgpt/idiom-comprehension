@@ -10,4 +10,16 @@ const irb = {
     choices: ['Continue']
 };
 
+// push to the timeline
+timeline.push(irb);
+
+const instructions = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: "In this experiment, you will see a series of idiom phrases. Each phrase will have four options.<br/>You will need to select the option that you think best represents the actual meaning of the idiom phrase.<br/> When you are ready, please select Continue to proceed.",
+    choices: ["Continue"]
+};
+timeline.push(instructions);
+
+
+
 jsPsych.run(timeline)
