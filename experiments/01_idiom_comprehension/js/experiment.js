@@ -36,7 +36,11 @@ const trials = {
             required: true
             }],
             trial_duration: 4000,
+            on_finish: function(data){
+                evaluate_response(data);
+            },
             data: jsPsych.timelineVariable('data')
+            
         },
         {
             type: jsPsychHtmlButtonResponse,
