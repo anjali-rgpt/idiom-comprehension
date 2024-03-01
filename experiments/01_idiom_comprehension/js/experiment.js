@@ -1,11 +1,17 @@
 
 const jsPsych = initJsPsych({
+    show_progress_bar: true, 
+    auto_update_progress_bar: false,
     on_finish: function () {
         jsPsych.data.displayData('csv');
       }
   });
 let timeline = [];
-let tv_array = create_tv_array(idioms).slice(0,3);
+
+const NUM_IDIOMS_PER_SAMPLE_LANGUAGE = 5;
+let temp_array = [create_tv_array(russian_idioms_sampled, NUM_IDIOMS_PER_SAMPLE_LANGUAGE), create_tv_array(mandarin_idioms_sampled, NUM_IDIOMS_PER_SAMPLE_LANGUAGE), create_tv_array(hindi_idioms_sampled, NUM_IDIOMS_PER_SAMPLE_LANGUAGE), create_tv_array(spanish_idioms_sampled, NUM_IDIOMS_PER_SAMPLE_LANGUAGE)] ;
+let tv_array = jsPsych.randomization.shuffle([].concat(temp_array[0], temp_array[1], temp_array[2], temp_array[3]));
+
 
 const irb = {
     // Which plugin to use
@@ -47,7 +53,10 @@ const trials = {
             choices: ["Continue"],
             stimulus: "",
             response_ends_trial: false,
-            trial_duration: 1000
+            trial_duration: 1000,
+            on_finish: function(data){
+                jsPsych.setProgressBar((data.trial_index - 1) / (timeline.length));
+            }
         }
     ],
     timeline_variables: tv_array,

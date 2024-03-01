@@ -171,7 +171,7 @@
     "language": "Mandarin Chinese",
     "literal": "to add eyes when painting a dragon",
     "figurative": "to improve something that is already good by focusing on the key details",
-    "confoundone": "",
+    "confoundone": "to exaggerate something",
     "confoundtwo": "to think about the future",
     "confoundthree": "to pay close attention to details"
   },
@@ -453,7 +453,7 @@
     "figurative": "to gain the benefits of others' work",
     "confoundone": "to cause trouble",
     "confoundtwo": "to not appreciate what you are given",
-    "confoundthree": ""
+    "confoundthree": "to share your fortune"
   },
   {
     "language": "Hindi",
