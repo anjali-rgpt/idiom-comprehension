@@ -1,5 +1,11 @@
-const jsPsych = initJsPsych();
+
+const jsPsych = initJsPsych({
+    on_finish: function () {
+        jsPsych.data.displayData('csv');
+      }
+  });
 let timeline = [];
+let tv_array = create_tv_array(idioms).slice(0,3);
 
 const irb = {
     // Which plugin to use
@@ -20,6 +26,30 @@ const instructions = {
 };
 timeline.push(instructions);
 
+const trials = {
+    timeline: [
+        {
+            type: jsPsychSurveyMultiChoice,
+            questions: [{
+            options: jsPsych.timelineVariable('choices'),
+            prompt: jsPsych.timelineVariable('stimulus'),
+            required: true
+            }],
+            trial_duration: 4000,
+            data: jsPsych.timelineVariable('data')
+        },
+        {
+            type: jsPsychHtmlButtonResponse,
+            choices: ["Continue"],
+            stimulus: "",
+            response_ends_trial: false,
+            trial_duration: 1000
+        }
+    ],
+    timeline_variables: tv_array,
+    randomize_order: true
+}
+timeline.push(trials);
 
 
 jsPsych.run(timeline)
