@@ -14,6 +14,7 @@ let timeline = [];
 const NUM_IDIOMS_PER_SAMPLE_LANGUAGE = 4;   // 4 idioms per language, 16 per participant. Ideally 100 participants to get 20 judgments. 
 let temp_array = [create_tv_array(russian_idioms_sampled, NUM_IDIOMS_PER_SAMPLE_LANGUAGE), create_tv_array(mandarin_idioms_sampled, NUM_IDIOMS_PER_SAMPLE_LANGUAGE), create_tv_array(hindi_idioms_sampled, NUM_IDIOMS_PER_SAMPLE_LANGUAGE), create_tv_array(spanish_idioms_sampled, NUM_IDIOMS_PER_SAMPLE_LANGUAGE)];
 let tv_array = jsPsych.randomization.shuffle([].concat(temp_array[0], temp_array[1], temp_array[2], temp_array[3]));
+console.log(tv_array.length);
 
 
 const irb = {
