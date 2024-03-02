@@ -1,15 +1,18 @@
 
 const jsPsych = initJsPsych({
-    show_progress_bar: true, 
+    show_progress_bar: true,
     auto_update_progress_bar: false,
-    on_finish: function () {
-        jsPsych.data.displayData('csv');
-      }
-  });
+    on_finish: function (data) {
+        //jsPsych.data.displayData('csv');
+
+        proliferate.submit({ "trials": data.values() });
+
+    }
+});
 let timeline = [];
 
-const NUM_IDIOMS_PER_SAMPLE_LANGUAGE = 5;
-let temp_array = [create_tv_array(russian_idioms_sampled, NUM_IDIOMS_PER_SAMPLE_LANGUAGE), create_tv_array(mandarin_idioms_sampled, NUM_IDIOMS_PER_SAMPLE_LANGUAGE), create_tv_array(hindi_idioms_sampled, NUM_IDIOMS_PER_SAMPLE_LANGUAGE), create_tv_array(spanish_idioms_sampled, NUM_IDIOMS_PER_SAMPLE_LANGUAGE)] ;
+const NUM_IDIOMS_PER_SAMPLE_LANGUAGE = 4;   // 4 idioms per language, 16 per participant. Ideally 100 participants to get 20 judgments. 
+let temp_array = [create_tv_array(russian_idioms_sampled, NUM_IDIOMS_PER_SAMPLE_LANGUAGE), create_tv_array(mandarin_idioms_sampled, NUM_IDIOMS_PER_SAMPLE_LANGUAGE), create_tv_array(hindi_idioms_sampled, NUM_IDIOMS_PER_SAMPLE_LANGUAGE), create_tv_array(spanish_idioms_sampled, NUM_IDIOMS_PER_SAMPLE_LANGUAGE)];
 let tv_array = jsPsych.randomization.shuffle([].concat(temp_array[0], temp_array[1], temp_array[2], temp_array[3]));
 
 
@@ -37,16 +40,16 @@ const trials = {
         {
             type: jsPsychSurveyMultiChoice,
             questions: [{
-            options: jsPsych.timelineVariable('choices'),
-            prompt: jsPsych.timelineVariable('stimulus'),
-            required: true
+                options: jsPsych.timelineVariable('choices'),
+                prompt: jsPsych.timelineVariable('stimulus'),
+                required: true
             }],
             trial_duration: 4000,
-            on_finish: function(data){
+            on_finish: function (data) {
                 evaluate_response(data);
             },
             data: jsPsych.timelineVariable('data')
-            
+
         },
         {
             type: jsPsychHtmlButtonResponse,
@@ -54,8 +57,9 @@ const trials = {
             stimulus: "",
             response_ends_trial: false,
             trial_duration: 1000,
-            on_finish: function(data){
-                jsPsych.setProgressBar((data.trial_index - 1) / (timeline.length));
+            on_finish: function (data) {
+                var curr_progress_bar_value = jsPsych.getProgressBarCompleted();
+                jsPsych.setProgressBar(curr_progress_bar_value + (1/tv_array.length));
             }
         }
     ],
@@ -64,5 +68,78 @@ const trials = {
 }
 timeline.push(trials);
 
+const questionnaire = {
+    type: jsPsychSurvey,
+    pages: [
+        [
+            {
+                type: 'html',
+                prompt: 'Please answer the following questions.'
+            },
+            {
+                type: 'multi-choice',
+                prompt: 'Did you read the instructions and do you think you did the task correctly?',
+                name: 'correct',
+                options: ['Yes', 'No', 'I was confused']
+            },
+            {
+
+                type: 'drop-down',
+                prompt: 'Gender:',
+                name: 'gender',
+                options: ['Female', 'Male', 'Non-binary/Non-conforming', 'Other']
+
+            },
+            {
+                type: 'text',
+                prompt: 'Age:',
+                name: 'age',
+                textbox_columns: 10
+            },
+            {
+                type: 'drop-down',
+                prompt: 'Level of education:',
+                name: 'education',
+                options: ['Some high school', 'Graduated high school', 'Some college', 'Graduated college', 'Hold a higher degree']
+            },
+            {
+                type: 'text',
+                prompt: "What languages are you natively proficient in? (grew up speaking OR can read, write and speak at native level). If multiple, separate by commas, e.g. \"English, Spanish\"",
+                name: 'language',
+                textbox_columns: 20,
+                textbox_rows: 3
+            },
+            {
+                type: 'drop-down',
+                prompt: 'Do you think the payment was fair?',
+                name: 'payment',
+                options: ['The payment was too low', 'The payment was fair']
+            },
+            {
+                type: 'drop-down',
+                prompt: 'How was the experiment?',
+                name: 'enjoy',
+                options: ['Worse than the average experiment', 'An average experiment', 'Better than the average experiment']
+            },
+            {
+                type: 'text',
+                prompt: "Do you have any other comments about this experiment?",
+                name: 'comments',
+                textbox_columns: 30,
+                textbox_rows: 4
+            }
+        ]
+    ]
+};
+
+timeline.push(questionnaire);
+
+const thanks = {
+    type: jsPsychHtmlButtonResponse,
+    choices: ['Continue'],
+    stimulus: "Thank you for your time! Please click 'Continue' and then wait a moment until you're directed back to Prolific.<br><br>"
+};
+
+timeline.push(thanks);
 
 jsPsych.run(timeline)
