@@ -11,9 +11,46 @@ const jsPsych = initJsPsych({
 });
 let timeline = [];
 
+let filter_idioms = [
+    {
+        "language": "English",
+        "literal": "once in a blue moon",
+        "figurative": "rarely or infrequently",
+        "confoundone": "every night",
+        "confoundtwo": "every two weeks",
+        "confoundthree": "almost always"
+      },
+
+      {
+        "language": "English",
+        "literal": "to face the music",
+        "figurative": "to deal with the consequences of a situation",
+        "confoundone": "to celebrate",
+        "confoundtwo": "to be calm and collected",
+        "confoundthree": "to talk to someone who has strong opinions"
+      },
+
+      {
+        "language": "English",
+        "literal": "to break the ice",
+        "figurative": "to start a conversation or ease tension",
+        "confoundone": "to make a tense situation worse",
+        "confoundtwo": "to overcome a challenge",
+        "confoundthree": "to feel happier after being sad"
+      },
+      {
+        "language": "English",
+        "literal": "to feel under the weather",
+        "figurative": "to be unwell",
+        "confoundone": "to be emotional",
+        "confoundtwo": "to be stuck in a difficult situation",
+        "confoundthree": "to feel like you are not in control"
+      }
+];
+
 const NUM_IDIOMS_PER_SAMPLE_LANGUAGE = 4;   // 4 idioms per language, 16 per participant. Ideally 100 participants to get 20 judgments. 
 let temp_array = [create_tv_array(russian_idioms_sampled, NUM_IDIOMS_PER_SAMPLE_LANGUAGE), create_tv_array(mandarin_idioms_sampled, NUM_IDIOMS_PER_SAMPLE_LANGUAGE), create_tv_array(hindi_idioms_sampled, NUM_IDIOMS_PER_SAMPLE_LANGUAGE), create_tv_array(spanish_idioms_sampled, NUM_IDIOMS_PER_SAMPLE_LANGUAGE)];
-let tv_array = jsPsych.randomization.shuffle([].concat(temp_array[0], temp_array[1], temp_array[2], temp_array[3]));
+let tv_array = jsPsych.randomization.shuffle([].concat(temp_array[0], temp_array[1], temp_array[2], temp_array[3], filter_idioms));
 console.log(tv_array.length);
 
 
