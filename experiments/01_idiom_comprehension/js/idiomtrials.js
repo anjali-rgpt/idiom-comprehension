@@ -225,7 +225,7 @@
   },
   {
     "language": "Mandarin Chinese",
-    "literal": "to play the qin to a cow",
+    "literal": "to play the qin (a musical instrument) to a cow",
     "figurative": "to talk to someone who cannot appreciate or understand you",
     "confoundone": "to flatter someone excessively",
     "confoundtwo": "to entertain someone",
@@ -593,7 +593,7 @@
   },
   {
     "language": "Spanish",
-    "literal": "to shake like a flan",
+    "literal": "to shake like a flan (a custard dessert)",
     "figurative": "to be nervous",
     "confoundone": "to be troublesome from the start",
     "confoundtwo": "to be in a state of great emotion",
