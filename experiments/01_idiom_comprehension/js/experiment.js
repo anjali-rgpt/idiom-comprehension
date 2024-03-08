@@ -146,6 +146,7 @@ const questionnaire = {
                 type: 'text',
                 prompt: "What languages are you natively proficient in? (grew up speaking OR can read, write and speak at native level). If multiple, separate by commas, e.g. \"English, Spanish\"",
                 name: 'language',
+                required:true,
                 textbox_columns: 20,
                 textbox_rows: 3
             },
