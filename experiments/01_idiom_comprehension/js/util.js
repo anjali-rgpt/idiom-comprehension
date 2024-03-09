@@ -8,6 +8,7 @@ function create_tv_array(json_object, sample) {
         obj.data = {};
         obj.data.correct = json_object[i].figurative;
         obj.data.language = json_object[i].language;
+        obj.data.idiom = json_object[i].literal;  // same as stimulus
         tv_array.push(obj)
     }
     sampled_array = jsPsych.randomization.sampleWithoutReplacement(tv_array, sample);
