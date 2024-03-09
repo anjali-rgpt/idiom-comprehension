@@ -70,7 +70,7 @@ timeline.push(irb);
 
 const instructions = {
     type: jsPsychHtmlButtonResponse,
-    stimulus: "In this experiment, you will see a series of idioms, each with four options.<br/> An example of an idiom in English is \"to kick the bucket\". For each idiom, please select the option that you think best represents its meaning.<br/> When you are ready, please select Continue to proceed.",
+    stimulus: "In this experiment, you will see a series of idioms, each with four options.<br/> An example of an idiom in English is \"to kick the bucket\".<br/> For each idiom, please select the option that you think best represents its meaning.<br/> When you are ready, please select Continue to proceed.",
     choices: ["Continue"]
 };
 timeline.push(instructions);
