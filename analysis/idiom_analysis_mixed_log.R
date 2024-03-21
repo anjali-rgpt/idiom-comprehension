@@ -17,13 +17,14 @@ idioms[sapply(idioms, is.character)] <- lapply(idioms[sapply(idioms, is.characte
                                        as.factor)
 idioms$workerid <- as.factor(idioms$workerid)
 
+
 # Step 2: Distribution of responses
 
 table(idioms$result) # here we see that num(correct) > num(incorrect) but this is factoring in English which acts as an attention check. We can eliminate about 394 options to get 618 correct idioms.
-
+table(idioms$Affect) # distribution of affect in idioms is as expected because idioms, being figurative, tend to be used to express more negative concepts so as to not directly imply the negative meaning through literal use
 prop.table(table(idioms$result))
 
-idiomsnew <- idioms[-which(idioms$language %in% "English"), -c(1,4,6,8) ]
+idiomsnew <- idioms[, -c(1,4,6,8) ]
 idiomsnewenglish <- idioms[, -c(1,4,6,8) ]
 
 table(idiomsnew$result)
@@ -34,10 +35,40 @@ prop.table(table(idiomsnew$result))  # proportion of correct vs incorrect withou
 
 # we work with the idiomsnew table now
 
+# Visualizing the proportion of correct responses for each language
+
+
+barplot(prop.table(table(idiomsnew$result, idiomsnew$language), margin = 2),
+        legend.text = T,
+        beside = T,
+        args.legend=list(x = "topleft",
+          horiz = TRUE
+        ),
+        xlab = "Language",
+        ylab = "Proportion",
+        main = "Proportion of expected meaning predictions per language")
+
+box()
+
+
+
+  
+dftmp = as.data.frame(prop.table(table(idiomsnew$idiom, idiomsnew$result), mar = c(1)))
+dftmp %>%
+ggplot() +
+  labs(title = "Proportion of Expected('Correct') Meaning Predictions By Idiom Descending ",
+       x = "Expected Meaning Proportion",
+       y = "Idiom",
+       fill = "Correct/Incorrect") + 
+  scale_fill_brewer(palette = "Set2") +
+  geom_bar(aes(x = reorder(Var1, Freq), y = Freq, 
+               fill = Var2), stat = "identity", show.legend = TRUE) + coord_flip()
+
 # Step 3: Identify reference level through contrasts
 
 contrasts(idiomsnew$result)
 contrasts(idiomsnew$language)
+contrasts(idiomsnew$Affect)
 prop.table(table(idiomsnew$result))
 
 # Step 4A: Baseline simple logistic regression model with no predictors - just running a prediction for the data
@@ -53,13 +84,12 @@ summary(m.norandomlang)
 # Or, the likelihood of an expected prediction for Russian compared to Hindi is about 40% lower. 
 # Hindi is the reference language.
 
-m.norandomenglang = glm(result ~ language, data = idiomsnewenglish, family = 'binomial')
-summary(m.norandomenglang)
-# If we include English as the reference language, then none of the other languages have any statistically likely chance of being predicted correctly over English, which is why we do not consider it.
-
+m.norandomaffect = glm(result ~ Affect, data = idiomsnew, family = 'binomial')
+summary(m.norandomaffect)
 
 # Step 4B: We start checking for mixed effects
-prop.table(table(idiomsnew$idiom, idiomsnew$result), mar = c(1)). # gives per-item proportions
+prop.table(table(idiomsnew$idiom, idiomsnew$result), mar = c(1)) # gives per-item proportions
+
 
 # mixed effect model with items as random effects
 m.item = glmer(result ~ 1 + (1|idiom), data=idiomsnew, family="binomial")
@@ -69,9 +99,6 @@ summary(m.item)
 m.itemlang = glmer(result ~ language + (1|idiom), data=idiomsnew, family="binomial")
 summary(m.itemlang)
 
-# mixed effect model with participants as random effects
-m.itempart = glmer(result ~ 1 + (1|workerid), data=idiomsnew, family="binomial")
-summary(m.itempart)
 
 # mixed effect model with participants as random effects and language as fixed effect
 m.langpart = glmer(result ~ language + (1|workerid), data=idiomsnew, family="binomial")
@@ -124,4 +151,10 @@ summary(m.c)
 
 m.c = glmer(result ~ language +  (1 + language||workerid), data=idiomsnew, family="binomial")
 summary(m.c)
+
+
+
+m.complete = glmer(result ~ language + (language | workerid), data = idiomsnew, family = "binomial", control=glmerControl(optimizer="nloptwrap",
+                                                                                                                                                 optCtrl=list(maxfun=100000)))
+summary(m.complete)
 
