@@ -2,6 +2,8 @@ library(tidyverse)
 library(lme4)
 library(languageR)
 library(brms)
+library(sjPlot)
+
 
 # set working directory to directory of script
 setwd(dirname(rstudioapi::getSourceEditorContext()$path))
@@ -57,8 +59,8 @@ dftmp = as.data.frame(prop.table(table(idiomsnew$idiom, idiomsnew$result), mar =
 dftmp %>%
 ggplot() +
   labs(title = "Proportion of Expected('Correct') Meaning Predictions By Idiom Descending ",
-       x = "Expected Meaning Proportion",
-       y = "Idiom",
+       y = "Expected Meaning Proportion",
+       x = "Idiom",
        fill = "Correct/Incorrect") + 
   scale_fill_brewer(palette = "Set2") +
   geom_bar(aes(x = reorder(Var1, Freq), y = Freq, 
@@ -90,19 +92,30 @@ summary(m.norandomaffect)
 # Step 4B: We start checking for mixed effects
 prop.table(table(idiomsnew$idiom, idiomsnew$result), mar = c(1)) # gives per-item proportions
 
+#mixed effect model with participants as random effects (AIC:1947.2)
+m.part = glmer(result ~ 1 + (1|workerid), data=idiomsnew, family="binomial")
+summary(m.part)
 
-# mixed effect model with items as random effects
+# mixed effect model with items as random effects(AIC:1670.6)
 m.item = glmer(result ~ 1 + (1|idiom), data=idiomsnew, family="binomial")
 summary(m.item)
 
-# mixed effect model with language as a fixed effect and item as random effect (useless because an idiom can only come from one language)
+# mixed effect model with language as a fixed effect and item as random effect (AIC: 1674.9)
 m.itemlang = glmer(result ~ language + (1|idiom), data=idiomsnew, family="binomial")
 summary(m.itemlang)
 
 
-# mixed effect model with participants as random effects and language as fixed effect
+# mixed effect model with participants as random effects and language as fixed effect(AIC:1942.6)
 m.langpart = glmer(result ~ language + (1|workerid), data=idiomsnew, family="binomial")
 summary(m.langpart)
+
+# mixed effect model with random slope effect of participants on the language (AIC:1956)
+m.langbypart = glmer(result ~ 1 + (language|workerid), data=idiomsnew, family="binomial")
+summary(m.langbypart)
+
+#The model with the lowest AIC here supposedly explains the data variance better with fewer parameters and in this case it is the one with random intercepts across idiom.
+#This shows that the model which accounts for the fact that predictions within an idiom are consistently the same and homogeneous and predictions across idioms are different
+#However, accounting for this variation 
 
 # Step 4C: What happens if we center the language factor?
 prop.table(table(idiomsnew[,c("language","result")]),mar=c(1))
@@ -135,26 +148,54 @@ idiomsnew = idiomsnew %>%
   mutate(cLang = numLang - mean(numLang))
 summary(idiomsnew)
 
-m.c = glmer(result ~ cLang + (1|workerid) + (1|idiom), data=idiomsnew, family="binomial")
-summary(m.c)
+# Effect of language accounting for random intercepts of participant and idiom
+m.partidiom = glmer(result ~ language + (1|workerid) + (1|idiom), data=idiomsnew, family="binomial")
+summary(m.partidiom)
 
-# What if we add a random slope for language across workers?
+# Effect of centered language accounting for random intercepts of participant and idiom
+m.cinter = glmer(result ~ cLang + (1|workerid) + (1|idiom), data=idiomsnew, family="binomial")
+summary(m.cinter)
+
+# What if we add a random slope for language across workers? We assume that participants predict different language idioms correctly in different ways
+
 m.c = glmer(result ~ language + (1 + language|workerid), data=idiomsnew, family="binomial")
 summary(m.c)
 
-m.c = glmer(result ~ 1 + language|workerid, data=idiomsnew, family="binomial")
-summary(m.c)
-# for each worker, the variance in their prediction of the expected meaning is fairly low for each language - the variance is the highest in Spanish and the lowest in Hindi. 
-
-m.c = glmer(result ~ language + (1 + language|workerid), data=idiomsnew, family="binomial")
-summary(m.c)
-
-m.c = glmer(result ~ language +  (1 + language||workerid), data=idiomsnew, family="binomial")
-summary(m.c)
+9#Centered mean
+m.clang = glmer(result ~ cLang + (1 + cLang|workerid), data=idiomsnew, family="binomial")
+summary(m.clang)
 
 
 
-m.complete = glmer(result ~ language + (language | workerid), data = idiomsnew, family = "binomial", control=glmerControl(optimizer="nloptwrap",
-                                                                                                                                                 optCtrl=list(maxfun=100000)))
+m.complete = glmer(result ~ language + (1 + language | workerid) + (1 | idiom), data = idiomsnew, family = "binomial")                                                                                                                                           
 summary(m.complete)
 
+
+# Model predictions for these model: currently this is with the complete model, but you can substitute for m.c which will give you only language effects with random effect per participant, or m.item for the baseline model with just idiom random effects
+# To get model predictions
+
+#idiomsnew$PredictedExpected = predict(m.item)
+#idiomsnew$PredictedExpected = predict(m.c)
+idiomsnew$PredictedExpected = predict(m.complete)
+head(idiomsnew)
+
+# Let's turn the predictions into probabilities
+idiomsnew$PredictedProbExpected = plogis(idiomsnew$PredictedExpected)
+head(idiomsnew)
+
+# Now let's turn them into actual categorical predictions
+idiomsnew$PredictedCatExpected = ifelse(idiomsnew$PredictedProbExpected < .5, "correct", "incorrect")
+head(idiomsnew)
+
+# How well do predicted and actual Expected match?
+head(idiomsnew[,c("result","PredictedCatExpected")],70)
+prop.table(table(idiomsnew[,c("result","PredictedCatExpected")]))
+
+# Compute the proportion of correctly predicted cases
+idiomsnew$Prediction = ifelse(idiomsnew$result == idiomsnew$PredictedCatExpected,"correct_eval","incorrect_eval")
+table(idiomsnew$Prediction)
+prop.table(table(idiomsnew$Prediction))
+
+sjPlot::tab_model(m.complete)
+# sjPlot::tab_model(m.c)
+# sjPlot::tab_model(m.item)
